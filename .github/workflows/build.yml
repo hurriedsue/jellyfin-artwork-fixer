@@ -57,3 +57,32 @@ jobs:
           files: |
             ArtworkFixer_*.zip
             checksum.txt
+
+      - name: Add this version to manifest.json
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSION=$(grep -oP '(?<=<Version>)[^<]+' Jellyfin.Plugin.ArtworkFixer/Jellyfin.Plugin.ArtworkFixer.csproj)
+          SUM=$(md5sum ArtworkFixer_$VERSION.zip | cut -d' ' -f1)
+          git fetch origin main
+          git checkout -B main origin/main
+          python3 - "$VERSION" "$SUM" "${GITHUB_REF_NAME}" <<'PY'
+          import json, sys, datetime
+          version, checksum, tag = sys.argv[1:4]
+          data = json.load(open("manifest.json"))
+          entry = {
+              "version": version,
+              "changelog": "See the release notes.",
+              "targetAbi": "12.0.0.0",
+              "sourceUrl": f"https://github.com/${{ github.repository }}/releases/download/{tag}/ArtworkFixer_{version}.zip",
+              "checksum": checksum,
+              "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+          }
+          versions = [v for v in data[0]["versions"] if v["version"] != version]
+          data[0]["versions"] = [entry] + versions
+          json.dump(data, open("manifest.json", "w"), indent=2)
+          PY
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add manifest.json
+          git commit -m "Add $VERSION to manifest" || exit 0
+          git push origin main

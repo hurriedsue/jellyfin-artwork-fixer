@@ -19,21 +19,25 @@ It does not depend on any other plugin or repository.
 
 Only administrators. The page lives in the dashboard, and every action it takes (listing remote images, downloading or uploading an image) goes through Jellyfin's own image endpoints, which require an administrator account.
 
-## Install (manual, works with a private repository)
+## Install (recommended: through Jellyfin)
 
-1. Open the **Actions** tab of this repository, open the latest successful **Build** run, and download the **ArtworkFixer** artifact. Unzip it to get `ArtworkFixer_x.x.x.x.zip`.
-   Or, if there is a release, download the zip from **Releases**.
-2. Unzip that into a new folder inside your Jellyfin plugins folder, for example
-   `C:\ProgramData\Jellyfin\Server\plugins\ArtworkFixer_1.0.0.0\`
-   (it should contain `Jellyfin.Plugin.ArtworkFixer.dll` and `meta.json`).
+1. In Jellyfin go to **Dashboard → Plugins → Repositories → +** and add:
+   - Name: `Artwork Fixer`
+   - URL: `https://raw.githubusercontent.com/hurriedsue/jellyfin-plugin-artwork-fixer/main/manifest.json`
+2. Open the **Catalog**, find **Artwork Fixer** under General, and install it.
+3. Restart Jellyfin. **Artwork Fixer** then appears in the dashboard's left-hand menu.
+
+## Install (manual)
+
+1. Download `ArtworkFixer_x.x.x.x.zip` from the latest **Release**.
+2. Unzip it into a new folder inside your Jellyfin plugins folder, for example `C:\ProgramData\Jellyfin\Server\plugins\ArtworkFixer_1.0.0.0\`.
 3. Restart Jellyfin.
-4. In the dashboard, **Artwork Fixer** appears in the left-hand menu.
 
 Built for **Jellyfin 12.x** (`targetAbi 12.0.0.0`, .NET 10).
 
 ## Releasing a version
 
-Change `<Version>` in `Jellyfin.Plugin.ArtworkFixer/Jellyfin.Plugin.ArtworkFixer.csproj`, then push a tag such as `v1.0.1`. The **Build** workflow builds the plugin and attaches the zip to a release.
+Change `<Version>` in `Jellyfin.Plugin.ArtworkFixer/Jellyfin.Plugin.ArtworkFixer.csproj`, then push a tag such as `v1.0.1.0`. The **Build** workflow builds the plugin, attaches the zip to a release, and adds the new version to `manifest.json` so Jellyfin offers it as an update.
 
 ## Settings
 

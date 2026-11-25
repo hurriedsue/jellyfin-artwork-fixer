@@ -1,0 +1,11 @@
+[
+  {
+    "guid": "8738f582-1c94-405b-9bf5-14b5739f0a00",
+    "name": "Artwork Fixer",
+    "description": "Admin-only dashboard tool for finding movies and shows with missing or low-resolution artwork and replacing it.",
+    "overview": "Find titles with missing or low-resolution artwork and replace it.",
+    "owner": "hurriedsue",
+    "category": "General",
+    "versions": []
+  }
+]
