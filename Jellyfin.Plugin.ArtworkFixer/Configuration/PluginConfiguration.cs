@@ -16,6 +16,9 @@ public class PluginConfiguration : BasePluginConfiguration
     /// <summary>Gets or sets a value indicating whether image sizes are checked (one request per title, cached).</summary>
     public bool CheckResolution { get; set; } = true;
 
+    /// <summary>Gets or sets the two-letter language code whose artwork is listed first.</summary>
+    public string PreferredLanguage { get; set; } = "en";
+
     /// <summary>Gets or sets a value indicating whether titles with no logo are listed.</summary>
     public bool FlagMissingLogo { get; set; } = false;
 }

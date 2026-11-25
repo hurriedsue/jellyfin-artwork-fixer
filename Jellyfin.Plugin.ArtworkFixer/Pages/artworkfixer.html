@@ -115,6 +115,9 @@
         <label class="afx-field">Backdrop is low-resolution below (px wide)
             <input type="number" id="afxMinBackdrop" min="300" max="4000" step="50" />
         </label>
+        <label class="afx-field">Preferred artwork language (2-letter code, e.g. en)
+            <input type="text" id="afxPrefLang" maxlength="5" style="width:6em" />
+        </label>
         <label class="afx-check"><input type="checkbox" id="afxCheckRes" /> Check image sizes (one request per title, then saved)</label>
         <label class="afx-check"><input type="checkbox" id="afxFlagLogo" /> List titles with no logo</label>
         <button type="button" class="afx-btn" id="afxSave">Save settings</button>
@@ -128,7 +131,17 @@
         <div class="afx-sub" id="afxDlgSub"></div>
         <div class="afx-tabs" id="afxTabs"></div>
         <div class="afx-dtools">
-            <label class="afx-check"><input type="checkbox" id="afxAllLang" /> Include all languages</label>
+            <label class="afx-check"><input type="checkbox" id="afxAllLang" checked /> Include all languages</label>
+            <label class="afx-field" style="flex-direction:row;align-items:center;gap:.5em">Sort
+                <select id="afxSort">
+                    <option value="best">Best match (language, rating, size)</option>
+                    <option value="rating">Highest rated</option>
+                    <option value="size">Largest</option>
+                </select>
+            </label>
+            <label class="afx-field" style="flex-direction:row;align-items:center;gap:.5em">Language
+                <select id="afxLang"><option value="">All found</option></select>
+            </label>
             <label class="afx-field" style="flex-direction:row;align-items:center;gap:.5em">Upload your own
                 <input type="file" id="afxFile" accept="image/jpeg,image/png,image/webp" />
             </label>
@@ -150,7 +163,7 @@
     var page = document.getElementById('artworkFixerPage');
     var $ = function (id) { return document.getElementById(id); };
 
-    var cfg = { MinPosterWidth: 600, MinBackdropWidth: 1280, CheckResolution: true, FlagMissingLogo: false };
+    var cfg = { MinPosterWidth: 600, MinBackdropWidth: 1280, CheckResolution: true, FlagMissingLogo: false, PreferredLanguage: 'en' };
     var all = [];        // every scanned title
     var shown = 0;       // how many of the filtered list are on screen
     var scanning = false;
@@ -195,11 +208,13 @@
                 if (c.MinBackdropWidth) cfg.MinBackdropWidth = c.MinBackdropWidth;
                 if (typeof c.CheckResolution === 'boolean') cfg.CheckResolution = c.CheckResolution;
                 if (typeof c.FlagMissingLogo === 'boolean') cfg.FlagMissingLogo = c.FlagMissingLogo;
+                if (c.PreferredLanguage) cfg.PreferredLanguage = c.PreferredLanguage;
             }
             $('afxMinPoster').value = cfg.MinPosterWidth;
             $('afxMinBackdrop').value = cfg.MinBackdropWidth;
             $('afxCheckRes').checked = cfg.CheckResolution;
             $('afxFlagLogo').checked = cfg.FlagMissingLogo;
+            $('afxPrefLang').value = cfg.PreferredLanguage;
         }).catch(function () { /* defaults apply */ });
     }
 
@@ -208,6 +223,7 @@
         cfg.MinBackdropWidth = parseInt($('afxMinBackdrop').value, 10) || 1280;
         cfg.CheckResolution = $('afxCheckRes').checked;
         cfg.FlagMissingLogo = $('afxFlagLogo').checked;
+        cfg.PreferredLanguage = ($('afxPrefLang').value || 'en').trim().toLowerCase();
         Dashboard.showLoadingMsg();
         ApiClient.getPluginConfiguration(PLUGIN_ID).then(function (c) {
             c = c || {};
@@ -215,6 +231,7 @@
             c.MinBackdropWidth = cfg.MinBackdropWidth;
             c.CheckResolution = cfg.CheckResolution;
             c.FlagMissingLogo = cfg.FlagMissingLogo;
+            c.PreferredLanguage = cfg.PreferredLanguage;
             return ApiClient.updatePluginConfiguration(PLUGIN_ID, c);
         }).then(function (r) {
             Dashboard.processPluginConfigurationUpdateResult(r);
@@ -434,28 +451,64 @@
         grid.innerHTML = '';
         note('Looking for alternatives…');
         var url = ApiClient.getUrl('Items/' + it.id + '/RemoteImages', {
-            type: type, limit: 60, includeAllLanguages: $('afxAllLang').checked
+            type: type, limit: 200, includeAllLanguages: $('afxAllLang').checked
         });
         ApiClient.getJSON(url).then(function (res) {
             if (!dlg.item || dlg.item.id !== it.id || dlg.type !== type) return;
-            var imgs = (res && res.Images) || [];
-            imgs.sort(function (a, b) { return ((b.Width || 0) * (b.Height || 0)) - ((a.Width || 0) * (a.Height || 0)); });
-            if (!imgs.length) {
-                note('No alternatives found from the metadata sources. Try “Include all languages”, “Refresh metadata”, or upload your own image.');
-                return;
-            }
-            note(imgs.length + ' alternatives, largest first.');
-            grid.innerHTML = imgs.map(function (im, i) {
-                var meta = '<b>' + (im.Width || '?') + '×' + (im.Height || '?') + '</b> · ' + esc(im.ProviderName || '') +
-                    (im.Language ? ' · ' + esc(im.Language) : '') +
-                    (im.CommunityRating ? ' · ★ ' + Number(im.CommunityRating).toFixed(1) : '');
-                return '<div class="afx-cand" data-i="' + i + '"><div class="afx-img" style="background-image:url(\'' + esc(im.ThumbnailUrl || im.Url) + '\')"></div>' +
-                    '<div class="afx-meta">' + meta + '</div><button type="button" data-use="' + i + '">Use this</button></div>';
-            }).join('');
-            grid._imgs = imgs;
+            dlg.cands = (res && res.Images) || [];
+            fillLanguages();
+            showCandidates();
         }).catch(function (e) {
             note('Could not load alternatives: ' + (e && e.status ? 'server said ' + e.status : (e && e.message) || 'unknown error'), 'is-err');
         });
+    }
+
+    function langRank(im) {
+        var pref = (cfg.PreferredLanguage || 'en').toLowerCase();
+        var l = (im.Language || '').toLowerCase();
+        if (l === pref) return 0;           // your language first
+        if (!l || l === 'xx') return 1;     // then textless artwork
+        if (l === 'en') return 2;
+        return 3;
+    }
+
+    function fillLanguages() {
+        var seen = {};
+        (dlg.cands || []).forEach(function (im) { seen[(im.Language || 'none')] = (seen[(im.Language || 'none')] || 0) + 1; });
+        var sel = $('afxLang'), keep = sel.value;
+        sel.innerHTML = '<option value="">All found</option>' + Object.keys(seen).sort().map(function (l) {
+            return '<option value="' + esc(l) + '">' + esc(l === 'none' ? 'No language (textless)' : l) + ' (' + seen[l] + ')</option>';
+        }).join('');
+        sel.value = seen[keep] ? keep : '';
+    }
+
+    function showCandidates() {
+        var grid = $('afxGrid');
+        var lang = $('afxLang').value, mode = $('afxSort').value;
+        var imgs = (dlg.cands || []).filter(function (im) { return !lang || (im.Language || 'none') === lang; });
+        var area = function (im) { return (im.Width || 0) * (im.Height || 0); };
+        var rating = function (im) { return im.CommunityRating || 0; };
+        var votes = function (im) { return im.VoteCount || 0; };
+        imgs.sort(function (a, b) {
+            if (mode === 'size') return area(b) - area(a);
+            if (mode === 'rating') return rating(b) - rating(a) || votes(b) - votes(a) || area(b) - area(a);
+            return langRank(a) - langRank(b) || rating(b) - rating(a) || votes(b) - votes(a) || area(b) - area(a);
+        });
+        if (!imgs.length) {
+            grid.innerHTML = '';
+            grid._imgs = [];
+            note(dlg.cands && dlg.cands.length ? 'Nothing matches that language.' : 'No alternatives found from the metadata sources. Try “Include all languages”, “Refresh metadata”, or upload your own image.');
+            return;
+        }
+        note(imgs.length + ' alternatives, ' + (mode === 'size' ? 'largest first.' : mode === 'rating' ? 'highest rated first.' : 'your language first, then best rated.'));
+        grid.innerHTML = imgs.map(function (im, i) {
+            var meta = '<b>' + (im.Width || '?') + '×' + (im.Height || '?') + '</b> · ' + esc(im.ProviderName || '') +
+                (im.Language ? ' · ' + esc(im.Language) : ' · textless') +
+                (im.CommunityRating ? ' · ★ ' + Number(im.CommunityRating).toFixed(1) + (im.VoteCount ? ' (' + im.VoteCount + ')' : '') : '');
+            return '<div class="afx-cand" data-i="' + i + '"><div class="afx-img" style="background-image:url(\'' + esc(im.ThumbnailUrl || im.Url) + '\')"></div>' +
+                '<div class="afx-meta">' + meta + '</div><button type="button" data-use="' + i + '">Use this</button></div>';
+        }).join('');
+        grid._imgs = imgs;
     }
 
     function applied(it, type) {
@@ -574,6 +627,8 @@
             loadCandidates();
         });
         $('afxAllLang').addEventListener('change', loadCandidates);
+        $('afxSort').addEventListener('change', showCandidates);
+        $('afxLang').addEventListener('change', showCandidates);
         $('afxGrid').addEventListener('click', function (e) {
             var b = e.target.closest('button[data-use]');
             if (b) useCandidate(parseInt(b.getAttribute('data-use'), 10), b);
