@@ -33,7 +33,7 @@ jobs:
             "category": "General",
             "guid": "8738f582-1c94-405b-9bf5-14b5739f0a00",
             "name": "Artwork Fixer",
-            "overview": "Find titles with missing or low-resolution artwork and replace it.",
+            "overview": "Finds movies and shows with missing or low-quality artwork and lets you replace it from one admin-only page.",
             "owner": "hurriedsue",
             "targetAbi": "12.0.0.0",
             "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",

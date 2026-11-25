@@ -2,8 +2,8 @@
   {
     "guid": "8738f582-1c94-405b-9bf5-14b5739f0a00",
     "name": "Artwork Fixer",
-    "description": "Admin-only dashboard tool for finding movies and shows with missing or low-resolution artwork and replacing it.",
-    "overview": "Find titles with missing or low-resolution artwork and replace it.",
+    "description": "Artwork Fixer adds an admin-only page to the Jellyfin dashboard. It scans your movies and shows and lists those with no poster, no backdrop (and, if you choose, no logo), or with a poster or backdrop that is smaller than the size you set. Select a title to see the alternative images your metadata sources offer, sorted by your preferred language, rating and size, and apply one with a single click. You can also upload your own image or refresh a title's metadata. Only administrators can open the page or change images.",
+    "overview": "Finds movies and shows with missing or low-quality artwork and lets you replace it from one admin-only page.",
     "owner": "hurriedsue",
     "category": "General",
     "versions": []
