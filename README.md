@@ -11,9 +11,9 @@ It does not depend on any other plugin or repository.
 ## What it does
 
 - Scans your Movies and Shows and lists the ones with **no poster**, **no backdrop**, optionally **no logo**, or a **low-resolution** poster or backdrop (you choose the pixel thresholds).
-- For each title, a **Fix artwork** window shows the alternative posters, backdrops and logos that your metadata sources offer, largest first, with their size, source and language. One click applies one.
+- For each title, a **Fix Artwork** window shows the alternative posters, backdrops and logos that your metadata sources offer, largest first, with their size, source and language. One click applies one.
 - You can also **upload your own image**, **refresh the title's metadata**, or jump to its page.
-- Image sizes are checked once per title and remembered in your browser, so later scans are quick. **Recheck sizes** clears that.
+- Image sizes are checked once per title and remembered in your browser, so later scans are quick. **Recheck Sizes** clears that.
 
 ## Who can use it
 

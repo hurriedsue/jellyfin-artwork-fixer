@@ -79,32 +79,32 @@
 <div class="afx-bar">
     <label class="afx-field">Show
         <select id="afxType">
-            <option value="Movie,Series">Movies and shows</option>
-            <option value="Movie">Movies only</option>
-            <option value="Series">Shows only</option>
+            <option value="Movie,Series">Movies and Shows</option>
+            <option value="Movie">Movies Only</option>
+            <option value="Series">Shows Only</option>
         </select>
     </label>
     <label class="afx-field">Problem
         <select id="afxProblem">
-            <option value="any">Any problem</option>
-            <option value="nopri">No poster</option>
-            <option value="nobd">No backdrop</option>
-            <option value="nologo">No logo</option>
-            <option value="lowpri">Low-resolution poster</option>
-            <option value="lowbd">Low-resolution backdrop</option>
+            <option value="any">Any Problem</option>
+            <option value="nopri">No Poster</option>
+            <option value="nobd">No Backdrop</option>
+            <option value="nologo">No Logo</option>
+            <option value="lowpri">Low-Resolution Poster</option>
+            <option value="lowbd">Low-Resolution Backdrop</option>
         </select>
     </label>
     <label class="afx-field">Search
         <input type="text" id="afxSearch" placeholder="Title contains…" />
     </label>
-    <button type="button" class="afx-btn afx-primary" id="afxScan">Scan library</button>
-    <button type="button" class="afx-btn" id="afxRescan" title="Forget saved image sizes and check them again">Recheck sizes</button>
+    <button type="button" class="afx-btn afx-primary" id="afxScan">Scan Library</button>
+    <button type="button" class="afx-btn" id="afxRescan" title="Forget saved image sizes and check them again">Recheck Sizes</button>
 </div>
 <div class="afx-progress" id="afxProgress"><i></i></div>
-<div class="afx-status" id="afxStatus">Press “Scan library” to begin.</div>
+<div class="afx-status" id="afxStatus">Press “Scan Library” to begin.</div>
 
 <div class="afx-list" id="afxList"></div>
-<div class="afx-more" id="afxMore" style="display:none"><button type="button" class="afx-btn" id="afxMoreBtn">Show more</button></div>
+<div class="afx-more" id="afxMore" style="display:none"><button type="button" class="afx-btn" id="afxMoreBtn">Show More</button></div>
 
 <details class="afx-settings">
     <summary>Settings</summary>
@@ -120,7 +120,7 @@
         </label>
         <label class="afx-check"><input type="checkbox" id="afxCheckRes" /> Check image sizes (one request per title, then saved)</label>
         <label class="afx-check"><input type="checkbox" id="afxFlagLogo" /> List titles with no logo</label>
-        <button type="button" class="afx-btn" id="afxSave">Save settings</button>
+        <button type="button" class="afx-btn" id="afxSave">Save Settings</button>
     </div>
 </details>
 
@@ -134,19 +134,19 @@
             <label class="afx-check"><input type="checkbox" id="afxAllLang" checked /> Include all languages</label>
             <label class="afx-field" style="flex-direction:row;align-items:center;gap:.5em">Sort
                 <select id="afxSort">
-                    <option value="best">Best match (language, rating, size)</option>
-                    <option value="rating">Highest rated</option>
+                    <option value="best">Best Match (Language, Rating, Size)</option>
+                    <option value="rating">Highest Rated</option>
                     <option value="size">Largest</option>
                 </select>
             </label>
             <label class="afx-field" style="flex-direction:row;align-items:center;gap:.5em">Language
-                <select id="afxLang"><option value="">All found</option></select>
+                <select id="afxLang"><option value="">All Found</option></select>
             </label>
             <label class="afx-field" style="flex-direction:row;align-items:center;gap:.5em">Upload your own
                 <input type="file" id="afxFile" accept="image/jpeg,image/png,image/webp" />
             </label>
-            <button type="button" class="afx-btn" id="afxRefreshMeta" title="Ask Jellyfin to re-fetch this title's metadata and images">Refresh metadata</button>
-            <a class="afx-btn" id="afxOpenItem" href="#" style="text-decoration:none">Open title page</a>
+            <button type="button" class="afx-btn" id="afxRefreshMeta" title="Ask Jellyfin to re-fetch this title's metadata and images">Refresh Metadata</button>
+            <a class="afx-btn" id="afxOpenItem" href="#" style="text-decoration:none">Open Title Page</a>
         </div>
         <div id="afxNote"></div>
         <div class="afx-grid" id="afxGrid"></div>
@@ -375,8 +375,8 @@
     }
 
     var TAGS = {
-        nopri: ['No poster', 'bad'], nobd: ['No backdrop', 'bad'], nologo: ['No logo', 'warn'],
-        lowpri: ['Low-res poster', 'warn'], lowbd: ['Low-res backdrop', 'warn']
+        nopri: ['No Poster', 'bad'], nobd: ['No Backdrop', 'bad'], nologo: ['No Logo', 'warn'],
+        lowpri: ['Low-Res Poster', 'warn'], lowbd: ['Low-Res Backdrop', 'warn']
     };
 
     function rowHtml(it) {
@@ -392,7 +392,7 @@
             '<div class="afx-thumb"' + thumb + '></div>' +
             '<div class="afx-main"><div class="afx-name">' + esc(it.name) + (it.year ? '<small>' + it.year + '</small>' : '') + '</div>' +
             '<div class="afx-tags">' + tags + '</div></div>' +
-            '<div class="afx-actions"><button type="button" class="afx-btn afx-primary" data-act="fix">Fix artwork…</button></div></div>';
+            '<div class="afx-actions"><button type="button" class="afx-btn afx-primary" data-act="fix">Fix Artwork…</button></div></div>';
     }
 
     function render(reset) {
@@ -408,7 +408,7 @@
         if (!scanning) {
             setStatus(all.length
                 ? list.length + ' title' + (list.length === 1 ? '' : 's') + ' need attention (of ' + all.length + ' scanned).'
-                : 'Press “Scan library” to begin.');
+                : 'Press “Scan Library” to begin.');
         }
     }
 
@@ -476,8 +476,8 @@
         var seen = {};
         (dlg.cands || []).forEach(function (im) { seen[(im.Language || 'none')] = (seen[(im.Language || 'none')] || 0) + 1; });
         var sel = $('afxLang'), keep = sel.value;
-        sel.innerHTML = '<option value="">All found</option>' + Object.keys(seen).sort().map(function (l) {
-            return '<option value="' + esc(l) + '">' + esc(l === 'none' ? 'No language (textless)' : l) + ' (' + seen[l] + ')</option>';
+        sel.innerHTML = '<option value="">All Found</option>' + Object.keys(seen).sort().map(function (l) {
+            return '<option value="' + esc(l) + '">' + esc(l === 'none' ? 'No Language (Textless)' : l) + ' (' + seen[l] + ')</option>';
         }).join('');
         sel.value = seen[keep] ? keep : '';
     }
@@ -497,16 +497,16 @@
         if (!imgs.length) {
             grid.innerHTML = '';
             grid._imgs = [];
-            note(dlg.cands && dlg.cands.length ? 'Nothing matches that language.' : 'No alternatives found from the metadata sources. Try “Include all languages”, “Refresh metadata”, or upload your own image.');
+            note(dlg.cands && dlg.cands.length ? 'Nothing matches that language.' : 'No alternatives found from the metadata sources. Try “Include all languages”, “Refresh Metadata”, or upload your own image.');
             return;
         }
         note(imgs.length + ' alternatives, ' + (mode === 'size' ? 'largest first.' : mode === 'rating' ? 'highest rated first.' : 'your language first, then best rated.'));
         grid.innerHTML = imgs.map(function (im, i) {
             var meta = '<b>' + (im.Width || '?') + '×' + (im.Height || '?') + '</b> · ' + esc(im.ProviderName || '') +
-                (im.Language ? ' · ' + esc(im.Language) : ' · textless') +
+                (im.Language ? ' · ' + esc(im.Language) : ' · Textless') +
                 (im.CommunityRating ? ' · ★ ' + Number(im.CommunityRating).toFixed(1) + (im.VoteCount ? ' (' + im.VoteCount + ')' : '') : '');
             return '<div class="afx-cand" data-i="' + i + '"><div class="afx-img" style="background-image:url(\'' + esc(im.ThumbnailUrl || im.Url) + '\')"></div>' +
-                '<div class="afx-meta">' + meta + '</div><button type="button" data-use="' + i + '">Use this</button></div>';
+                '<div class="afx-meta">' + meta + '</div><button type="button" data-use="' + i + '">Use This</button></div>';
         }).join('');
         grid._imgs = imgs;
     }
@@ -552,7 +552,7 @@
             return applied(it, type);
         }).catch(function (e) {
             button.disabled = false;
-            button.textContent = 'Use this';
+            button.textContent = 'Use This';
             note('Could not apply that image' + (e && e.status ? ' (server said ' + e.status + ')' : '') + '.', 'is-err');
         }).then(function () { dlg.busy = false; });
     }
