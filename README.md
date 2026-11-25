@@ -2,9 +2,10 @@
 
 Artwork Fixer adds an admin-only page to the Jellyfin dashboard. It helps you find movies and shows whose artwork is missing or too small, and replace it without leaving the page.
 
-> **AI disclaimer:** This plugin was written with the help of an ClaudeAI and tested
-> only on one personal Jellyfin 12.4 server. It may contain bugs or behave differently elsewhere. It is provided
-> as is, with no warranty. Try it on one title first. I can read and write code, I just opted to speed up the process via vibecoding but every change is reviewed manually by a human.
+> **Disclosure:** This plugin was developed with the assistance of an AI model (Claude, by Anthropic). The author
+> can read and write code and chose AI-assisted development to speed up the process; every change is reviewed
+> manually by a human. It has been tested on a single Jellyfin 12.4 installation and is provided as is, without
+> warranty of any kind. Test it on one title before relying on it.
 
 It does not depend on any other plugin or repository.
 
@@ -36,10 +37,6 @@ Only administrators. The page lives in the dashboard, and every action it takes 
 3. Restart Jellyfin.
 
 Built for **Jellyfin 12.x** (`targetAbi 12.0.0.0`, .NET 10).
-
-## Releasing a version
-
-Change `<Version>` in `Jellyfin.Plugin.ArtworkFixer/Jellyfin.Plugin.ArtworkFixer.csproj`, then push a tag such as `v1.0.1.0`. The **Build** workflow builds the plugin, attaches the zip to a release, and adds the new version to `manifest.json` so Jellyfin offers it as an update.
 
 ## Settings
 
