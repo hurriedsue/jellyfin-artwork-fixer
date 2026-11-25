@@ -2,10 +2,9 @@
 
 Artwork Fixer adds an admin-only page to the Jellyfin dashboard. It helps you find movies and shows whose artwork is missing or too small, and replace it without leaving the page.
 
-> **Disclosure:** This plugin was developed with the assistance of an AI model (Claude, by Anthropic). The author
-> can read and write code and chose AI-assisted development to speed up the process; every change is reviewed
-> manually by a human. It has been tested on a single Jellyfin 12.4 installation and is provided as is, without
-> warranty of any kind. Test it on one title before relying on it.
+> **Disclosure:** This plugin was developed with the assistance of an AI model (Claude, by Anthropic). Every change
+> is reviewed manually by a human. It has been tested on a single Jellyfin 12.4 installation and is provided as is,
+> without warranty of any kind. Test it on one title before relying on it.
 
 It does not depend on any other plugin or repository.
 
