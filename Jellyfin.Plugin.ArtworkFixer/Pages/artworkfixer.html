@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Artwork Fixer</title>
+</head>
+<body>
+<div id="artworkFixerPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-button,emby-input,emby-select,emby-checkbox">
+<div data-role="content">
+<div class="content-primary afx">
+
+<style>
+.afx { max-width: 1200px; }
+.afx h1 { margin-bottom: 0.3em; }
+.afx .afx-lead { opacity: 0.75; margin: 0 0 1.2em; }
+.afx .afx-bar { display: flex; flex-wrap: wrap; gap: 0.6em 1em; align-items: flex-end; margin-bottom: 1em; }
+.afx .afx-field { display: flex; flex-direction: column; gap: 0.25em; font-size: 0.9em; }
+.afx .afx-field select, .afx .afx-field input[type=text], .afx .afx-field input[type=number] {
+  padding: 0.5em 0.6em; border-radius: 4px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.06); color: inherit; font: inherit;
+}
+.afx .afx-field select option { color: #000; }
+.afx .afx-check { display: flex; align-items: center; gap: 0.4em; font-size: 0.9em; padding-bottom: 0.45em; }
+.afx .afx-btn {
+  cursor: pointer; padding: 0.55em 1.1em; border-radius: 4px; border: 1px solid rgba(255,255,255,.3);
+  background: rgba(255,255,255,.08); color: inherit; font: inherit;
+}
+.afx .afx-btn:hover { background: rgba(255,255,255,.18); }
+.afx .afx-primary { background: #00a4dc; border-color: #00a4dc; color: #fff; font-weight: 600; }
+.afx .afx-primary:hover { background: #22b8ee; }
+.afx .afx-btn[disabled] { opacity: 0.45; cursor: default; }
+.afx .afx-progress { height: 6px; border-radius: 3px; background: rgba(255,255,255,.12); overflow: hidden; margin: 0.4em 0 0.2em; display: none; }
+.afx .afx-progress > i { display: block; height: 100%; width: 0; background: #00a4dc; transition: width 0.15s; }
+.afx .afx-status { font-size: 0.9em; opacity: 0.8; min-height: 1.4em; margin-bottom: 0.8em; }
+.afx .afx-list { display: flex; flex-direction: column; gap: 0.5em; }
+.afx .afx-row { display: flex; gap: 1em; align-items: center; padding: 0.6em; border-radius: 6px; background: rgba(255,255,255,.05); }
+.afx .afx-thumb { flex: 0 0 auto; width: 56px; aspect-ratio: 2 / 3; border-radius: 3px; background: rgba(255,255,255,.1) center / cover no-repeat; }
+.afx .afx-main { flex: 1 1 auto; min-width: 0; }
+.afx .afx-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.afx .afx-name small { font-weight: 400; opacity: 0.65; margin-left: 0.4em; }
+.afx .afx-tags { display: flex; flex-wrap: wrap; gap: 0.35em; margin-top: 0.35em; }
+.afx .afx-tag { font-size: 0.75em; padding: 0.15em 0.55em; border-radius: 999px; background: rgba(255,255,255,.12); }
+.afx .afx-tag.bad { background: rgba(229, 9, 20, .75); color: #fff; }
+.afx .afx-tag.warn { background: rgba(240, 170, 20, .85); color: #000; }
+.afx .afx-actions { display: flex; gap: 0.5em; flex: 0 0 auto; }
+.afx .afx-more { margin: 1em 0; }
+.afx .afx-settings { margin: 1.2em 0; padding: 0.8em 1em; border-radius: 6px; background: rgba(255,255,255,.04); }
+.afx .afx-settings summary { cursor: pointer; font-weight: 600; }
+.afx .afx-settings .afx-bar { margin: 0.8em 0 0; }
+
+.afx-modal { position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,.78); display: none; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 3vh 1em; }
+.afx-modal.is-open { display: flex; }
+.afx-dialog { width: min(1100px, 100%); background: #1c1c1c; color: #eee; border-radius: 8px; padding: 1.2em 1.4em 1.6em; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+.afx-dialog h2 { margin: 0 0 0.2em; font-size: 1.3em; }
+.afx-dialog .afx-sub { opacity: 0.7; margin-bottom: 1em; font-size: 0.9em; }
+.afx-tabs { display: flex; gap: 0.4em; margin-bottom: 1em; flex-wrap: wrap; }
+.afx-tabs button { cursor: pointer; padding: 0.45em 1em; border-radius: 999px; border: 1px solid rgba(255,255,255,.25); background: transparent; color: inherit; font: inherit; }
+.afx-tabs button.is-on { background: #fff; color: #000; border-color: #fff; font-weight: 600; }
+.afx-dtools { display: flex; flex-wrap: wrap; gap: 0.6em 1em; align-items: center; margin-bottom: 1em; font-size: 0.9em; }
+.afx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.8em; }
+.afx-grid.is-wide { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.afx-grid.is-logo { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.afx-cand { background: rgba(255,255,255,.06); border-radius: 6px; padding: 0.5em; display: flex; flex-direction: column; gap: 0.4em; }
+.afx-cand .afx-img { width: 100%; border-radius: 4px; background: rgba(255,255,255,.08) center / contain no-repeat; aspect-ratio: 2 / 3; }
+.afx-grid.is-wide .afx-img { aspect-ratio: 16 / 9; background-size: cover; }
+.afx-grid.is-logo .afx-img { aspect-ratio: 16 / 9; background-color: #333; }
+.afx-cand .afx-meta { font-size: 0.78em; opacity: 0.8; line-height: 1.35; }
+.afx-cand .afx-meta b { color: #7fd1ff; }
+.afx-cand button { cursor: pointer; padding: 0.4em 0.6em; border-radius: 4px; border: 0; background: #00a4dc; color: #fff; font: inherit; font-weight: 600; }
+.afx-cand button[disabled] { opacity: 0.5; cursor: default; }
+.afx-close { float: right; cursor: pointer; background: transparent; border: 0; color: inherit; font-size: 1.6em; line-height: 1; }
+.afx-note { font-size: 0.88em; padding: 0.6em 0.8em; border-radius: 4px; margin: 0.6em 0; background: rgba(255,255,255,.07); }
+.afx-note.is-ok { background: rgba(60, 180, 90, .25); }
+.afx-note.is-err { background: rgba(229, 9, 20, .3); }
+</style>
+
+<h1>Artwork Fixer</h1>
+<p class="afx-lead">Find movies and shows with missing or low-resolution artwork, then replace it. Only administrators can open this page or change images.</p>
+
+<div class="afx-bar">
+    <label class="afx-field">Show
+        <select id="afxType">
+            <option value="Movie,Series">Movies and shows</option>
+            <option value="Movie">Movies only</option>
+            <option value="Series">Shows only</option>
+        </select>
+    </label>
+    <label class="afx-field">Problem
+        <select id="afxProblem">
+            <option value="any">Any problem</option>
+            <option value="nopri">No poster</option>
+            <option value="nobd">No backdrop</option>
+            <option value="nologo">No logo</option>
+            <option value="lowpri">Low-resolution poster</option>
+            <option value="lowbd">Low-resolution backdrop</option>
+        </select>
+    </label>
+    <label class="afx-field">Search
+        <input type="text" id="afxSearch" placeholder="Title contains…" />
+    </label>
+    <button type="button" class="afx-btn afx-primary" id="afxScan">Scan library</button>
+    <button type="button" class="afx-btn" id="afxRescan" title="Forget saved image sizes and check them again">Recheck sizes</button>
+</div>
+<div class="afx-progress" id="afxProgress"><i></i></div>
+<div class="afx-status" id="afxStatus">Press “Scan library” to begin.</div>
+
+<div class="afx-list" id="afxList"></div>
+<div class="afx-more" id="afxMore" style="display:none"><button type="button" class="afx-btn" id="afxMoreBtn">Show more</button></div>
+
+<details class="afx-settings">
+    <summary>Settings</summary>
+    <div class="afx-bar">
+        <label class="afx-field">Poster is low-resolution below (px wide)
+            <input type="number" id="afxMinPoster" min="100" max="4000" step="50" />
+        </label>
+        <label class="afx-field">Backdrop is low-resolution below (px wide)
+            <input type="number" id="afxMinBackdrop" min="300" max="4000" step="50" />
+        </label>
+        <label class="afx-check"><input type="checkbox" id="afxCheckRes" /> Check image sizes (one request per title, then saved)</label>
+        <label class="afx-check"><input type="checkbox" id="afxFlagLogo" /> List titles with no logo</label>
+        <button type="button" class="afx-btn" id="afxSave">Save settings</button>
+    </div>
+</details>
+
+<div class="afx-modal" id="afxModal" role="dialog" aria-modal="true">
+    <div class="afx-dialog">
+        <button type="button" class="afx-close" id="afxClose" aria-label="Close">&times;</button>
+        <h2 id="afxDlgTitle"></h2>
+        <div class="afx-sub" id="afxDlgSub"></div>
+        <div class="afx-tabs" id="afxTabs"></div>
+        <div class="afx-dtools">
+            <label class="afx-check"><input type="checkbox" id="afxAllLang" /> Include all languages</label>
+            <label class="afx-field" style="flex-direction:row;align-items:center;gap:.5em">Upload your own
+                <input type="file" id="afxFile" accept="image/jpeg,image/png,image/webp" />
+            </label>
+            <button type="button" class="afx-btn" id="afxRefreshMeta" title="Ask Jellyfin to re-fetch this title's metadata and images">Refresh metadata</button>
+            <a class="afx-btn" id="afxOpenItem" href="#" style="text-decoration:none">Open title page</a>
+        </div>
+        <div id="afxNote"></div>
+        <div class="afx-grid" id="afxGrid"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+(function () {
+    var PLUGIN_ID = '8738f582-1c94-405b-9bf5-14b5739f0a00';
+    var CACHE_KEY = 'artworkfixer.dims.v1';
+    var PAGE_SIZE = 50;
+    var CONCURRENCY = 6;
+
+    var page = document.getElementById('artworkFixerPage');
+    var $ = function (id) { return document.getElementById(id); };
+
+    var cfg = { MinPosterWidth: 600, MinBackdropWidth: 1280, CheckResolution: true, FlagMissingLogo: false };
+    var all = [];        // every scanned title
+    var shown = 0;       // how many of the filtered list are on screen
+    var scanning = false;
+    var dims = {};
+    try { dims = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}') || {}; } catch (e) { dims = {}; }
+    var saveDimsTimer = 0;
+
+    function saveDims() {
+        clearTimeout(saveDimsTimer);
+        saveDimsTimer = setTimeout(function () {
+            try { localStorage.setItem(CACHE_KEY, JSON.stringify(dims)); } catch (e) { /* storage full: sizes are just rechecked next time */ }
+        }, 400);
+    }
+
+    function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+
+    function setStatus(text) { $('afxStatus').textContent = text; }
+    function setProgress(fraction) {
+        var bar = $('afxProgress');
+        if (fraction == null) { bar.style.display = 'none'; return; }
+        bar.style.display = 'block';
+        bar.firstElementChild.style.width = Math.round(fraction * 100) + '%';
+    }
+
+    function imgUrl(id, type, tag, width) {
+        var q = { quality: 80 };
+        if (width) q.fillWidth = width;
+        if (tag) q.tag = tag;
+        return ApiClient.getUrl('Items/' + id + '/Images/' + type, q);
+    }
+
+    /* ---------- settings ---------- */
+
+    function loadSettings() {
+        return ApiClient.getPluginConfiguration(PLUGIN_ID).then(function (c) {
+            if (c) {
+                if (c.MinPosterWidth) cfg.MinPosterWidth = c.MinPosterWidth;
+                if (c.MinBackdropWidth) cfg.MinBackdropWidth = c.MinBackdropWidth;
+                if (typeof c.CheckResolution === 'boolean') cfg.CheckResolution = c.CheckResolution;
+                if (typeof c.FlagMissingLogo === 'boolean') cfg.FlagMissingLogo = c.FlagMissingLogo;
+            }
+            $('afxMinPoster').value = cfg.MinPosterWidth;
+            $('afxMinBackdrop').value = cfg.MinBackdropWidth;
+            $('afxCheckRes').checked = cfg.CheckResolution;
+            $('afxFlagLogo').checked = cfg.FlagMissingLogo;
+        }).catch(function () { /* defaults apply */ });
+    }
+
+    function saveSettings() {
+        cfg.MinPosterWidth = parseInt($('afxMinPoster').value, 10) || 600;
+        cfg.MinBackdropWidth = parseInt($('afxMinBackdrop').value, 10) || 1280;
+        cfg.CheckResolution = $('afxCheckRes').checked;
+        cfg.FlagMissingLogo = $('afxFlagLogo').checked;
+        Dashboard.showLoadingMsg();
+        ApiClient.getPluginConfiguration(PLUGIN_ID).then(function (c) {
+            c = c || {};
+            c.MinPosterWidth = cfg.MinPosterWidth;
+            c.MinBackdropWidth = cfg.MinBackdropWidth;
+            c.CheckResolution = cfg.CheckResolution;
+            c.FlagMissingLogo = cfg.FlagMissingLogo;
+            return ApiClient.updatePluginConfiguration(PLUGIN_ID, c);
+        }).then(function (r) {
+            Dashboard.processPluginConfigurationUpdateResult(r);
+            all.forEach(evaluate);
+            render(true);
+        }).catch(function () { Dashboard.hideLoadingMsg(); });
+    }
+
+    /* ---------- scanning ---------- */
+
+    function evaluate(it) {
+        var p = [];
+        if (!it.hasPrimary) p.push('nopri');
+        if (!it.hasBackdrop) p.push('nobd');
+        if (cfg.FlagMissingLogo && !it.hasLogo) p.push('nologo');
+        if (cfg.CheckResolution) {
+            if (it.hasPrimary && it.priW && it.priW < cfg.MinPosterWidth) p.push('lowpri');
+            if (it.hasBackdrop && it.bdW && it.bdW < cfg.MinBackdropWidth) p.push('lowbd');
+        }
+        it.problems = p;
+    }
+
+    function dimKey(it) { return it.id + ':' + (it.priTag || '') + '|' + (it.bdTag || ''); }
+
+    function applyDims(it, d) {
+        it.priW = d.pw || 0; it.priH = d.ph || 0;
+        it.bdW = d.bw || 0; it.bdH = d.bh || 0;
+    }
+
+    function fetchDims(it) {
+        if (!it.hasPrimary && !it.hasBackdrop) return Promise.resolve();
+        var key = dimKey(it);
+        if (dims[key]) { applyDims(it, dims[key]); return Promise.resolve(); }
+        return ApiClient.getJSON(ApiClient.getUrl('Items/' + it.id + '/Images')).then(function (list) {
+            var d = { pw: 0, ph: 0, bw: 0, bh: 0 };
+            (list || []).forEach(function (info) {
+                if (info.ImageType === 'Primary' && !d.pw) { d.pw = info.Width || 0; d.ph = info.Height || 0; }
+                if (info.ImageType === 'Backdrop' && !d.bw) { d.bw = info.Width || 0; d.bh = info.Height || 0; }
+            });
+            dims[key] = d;
+            applyDims(it, d);
+            saveDims();
+        }).catch(function () { /* size unknown: not flagged as low */ });
+    }
+
+    function runPool(items, worker, onProgress) {
+        var index = 0, done = 0;
+        return new Promise(function (resolve) {
+            if (!items.length) return resolve();
+            function next() {
+                if (index >= items.length) return;
+                var item = items[index++];
+                Promise.resolve(worker(item)).then(function () {
+                    done++;
+                    if (onProgress) onProgress(done, items.length);
+                    if (done >= items.length) resolve(); else next();
+                });
+            }
+            for (var i = 0; i < Math.min(CONCURRENCY, items.length); i++) next();
+        });
+    }
+
+    async function scan(forceSizes) {
+        if (scanning) return;
+        scanning = true;
+        $('afxScan').disabled = true;
+        $('afxRescan').disabled = true;
+        if (forceSizes) { dims = {}; saveDims(); }
+        all = [];
+        shown = 0;
+        $('afxList').innerHTML = '';
+        $('afxMore').style.display = 'none';
+        try {
+            var userId = ApiClient.getCurrentUserId();
+            var start = 0, total = null, chunk = 500;
+            setProgress(0);
+            while (total === null || start < total) {
+                var res = await ApiClient.getJSON(ApiClient.getUrl('Users/' + userId + '/Items', {
+                    IncludeItemTypes: 'Movie,Series',
+                    Recursive: true,
+                    Fields: 'ProductionYear',
+                    EnableImageTypes: 'Primary,Backdrop,Logo',
+                    ImageTypeLimit: 1,
+                    SortBy: 'SortName',
+                    StartIndex: start,
+                    Limit: chunk,
+                    EnableTotalRecordCount: true
+                }));
+                total = res.TotalRecordCount || 0;
+                (res.Items || []).forEach(function (x) {
+                    var tags = x.ImageTags || {};
+                    var bd = x.BackdropImageTags || [];
+                    all.push({
+                        id: x.Id, name: x.Name, year: x.ProductionYear, type: x.Type,
+                        hasPrimary: !!tags.Primary, hasBackdrop: bd.length > 0, hasLogo: !!tags.Logo,
+                        priTag: tags.Primary || '', bdTag: bd[0] || '',
+                        priW: 0, priH: 0, bdW: 0, bdH: 0, problems: []
+                    });
+                });
+                start += chunk;
+                setStatus('Reading library… ' + all.length + ' of ' + total);
+                setProgress(total ? Math.min(1, start / total) * (cfg.CheckResolution ? 0.2 : 1) : 1);
+                if (!(res.Items || []).length) break;
+            }
+            all.forEach(evaluate);
+            render(true);
+
+            if (cfg.CheckResolution) {
+                var todo = all.filter(function (it) { return (it.hasPrimary || it.hasBackdrop); });
+                await runPool(todo, fetchDims, function (done, count) {
+                    setProgress(0.2 + 0.8 * (done / count));
+                    setStatus('Checking image sizes… ' + done + ' of ' + count);
+                    if (done % 40 === 0) { all.forEach(evaluate); render(true); }
+                });
+                all.forEach(evaluate);
+            }
+            setProgress(null);
+            render(true);
+        } catch (e) {
+            setProgress(null);
+            setStatus('Scan failed: ' + (e && e.message ? e.message : e));
+        }
+        scanning = false;
+        $('afxScan').disabled = false;
+        $('afxRescan').disabled = false;
+    }
+
+    /* ---------- list ---------- */
+
+    function filtered() {
+        var types = $('afxType').value.split(',');
+        var problem = $('afxProblem').value;
+        var q = $('afxSearch').value.trim().toLowerCase();
+        return all.filter(function (it) {
+            if (types.indexOf(it.type) < 0) return false;
+            if (q && (it.name || '').toLowerCase().indexOf(q) < 0) return false;
+            if (!it.problems.length) return false;
+            if (problem !== 'any' && it.problems.indexOf(problem) < 0) return false;
+            return true;
+        });
+    }
+
+    var TAGS = {
+        nopri: ['No poster', 'bad'], nobd: ['No backdrop', 'bad'], nologo: ['No logo', 'warn'],
+        lowpri: ['Low-res poster', 'warn'], lowbd: ['Low-res backdrop', 'warn']
+    };
+
+    function rowHtml(it) {
+        var thumb = it.hasPrimary ? ' style="background-image:url(\'' + imgUrl(it.id, 'Primary', it.priTag, 120) + '\')"' : '';
+        var tags = it.problems.map(function (p) {
+            var t = TAGS[p];
+            var extra = '';
+            if (p === 'lowpri' && it.priW) extra = ' (' + it.priW + '×' + it.priH + ')';
+            if (p === 'lowbd' && it.bdW) extra = ' (' + it.bdW + '×' + it.bdH + ')';
+            return '<span class="afx-tag ' + t[1] + '">' + t[0] + extra + '</span>';
+        }).join('');
+        return '<div class="afx-row" data-id="' + esc(it.id) + '">' +
+            '<div class="afx-thumb"' + thumb + '></div>' +
+            '<div class="afx-main"><div class="afx-name">' + esc(it.name) + (it.year ? '<small>' + it.year + '</small>' : '') + '</div>' +
+            '<div class="afx-tags">' + tags + '</div></div>' +
+            '<div class="afx-actions"><button type="button" class="afx-btn afx-primary" data-act="fix">Fix artwork…</button></div></div>';
+    }
+
+    function render(reset) {
+        var list = filtered();
+        if (reset) { shown = 0; $('afxList').innerHTML = ''; }
+        var end = Math.min(list.length, shown + (shown ? PAGE_SIZE : Math.max(PAGE_SIZE, shown)));
+        if (reset) end = Math.min(list.length, PAGE_SIZE);
+        var html = '';
+        for (var i = shown; i < end; i++) html += rowHtml(list[i]);
+        $('afxList').insertAdjacentHTML('beforeend', html);
+        shown = end;
+        $('afxMore').style.display = shown < list.length ? 'block' : 'none';
+        if (!scanning) {
+            setStatus(all.length
+                ? list.length + ' title' + (list.length === 1 ? '' : 's') + ' need attention (of ' + all.length + ' scanned).'
+                : 'Press “Scan library” to begin.');
+        }
+    }
+
+    function itemById(id) { for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i]; return null; }
+
+    /* ---------- fix dialog ---------- */
+
+    var dlg = { item: null, type: 'Primary', busy: false };
+    var TABS = [['Primary', 'Poster'], ['Backdrop', 'Backdrop'], ['Logo', 'Logo']];
+
+    function openDialog(it) {
+        dlg.item = it;
+        dlg.type = (it.problems.indexOf('nobd') >= 0 || it.problems.indexOf('lowbd') >= 0) && it.problems.indexOf('nopri') < 0 && it.problems.indexOf('lowpri') < 0 ? 'Backdrop' : 'Primary';
+        $('afxDlgTitle').textContent = it.name + (it.year ? ' (' + it.year + ')' : '');
+        $('afxDlgSub').textContent = it.problems.map(function (p) { return TAGS[p][0]; }).join(' · ');
+        $('afxOpenItem').href = '#/details?id=' + it.id;
+        $('afxModal').classList.add('is-open');
+        buildTabs();
+        loadCandidates();
+    }
+
+    function closeDialog() { $('afxModal').classList.remove('is-open'); dlg.item = null; }
+
+    function buildTabs() {
+        $('afxTabs').innerHTML = TABS.map(function (t) {
+            return '<button type="button" data-type="' + t[0] + '" class="' + (dlg.type === t[0] ? 'is-on' : '') + '">' + t[1] + '</button>';
+        }).join('');
+    }
+
+    function note(text, kind) {
+        $('afxNote').innerHTML = text ? '<div class="afx-note ' + (kind || '') + '">' + esc(text) + '</div>' : '';
+    }
+
+    function loadCandidates() {
+        var it = dlg.item;
+        if (!it) return;
+        var type = dlg.type;
+        var grid = $('afxGrid');
+        grid.className = 'afx-grid' + (type === 'Backdrop' ? ' is-wide' : type === 'Logo' ? ' is-logo' : '');
+        grid.innerHTML = '';
+        note('Looking for alternatives…');
+        var url = ApiClient.getUrl('Items/' + it.id + '/RemoteImages', {
+            type: type, limit: 60, includeAllLanguages: $('afxAllLang').checked
+        });
+        ApiClient.getJSON(url).then(function (res) {
+            if (!dlg.item || dlg.item.id !== it.id || dlg.type !== type) return;
+            var imgs = (res && res.Images) || [];
+            imgs.sort(function (a, b) { return ((b.Width || 0) * (b.Height || 0)) - ((a.Width || 0) * (a.Height || 0)); });
+            if (!imgs.length) {
+                note('No alternatives found from the metadata sources. Try “Include all languages”, “Refresh metadata”, or upload your own image.');
+                return;
+            }
+            note(imgs.length + ' alternatives, largest first.');
+            grid.innerHTML = imgs.map(function (im, i) {
+                var meta = '<b>' + (im.Width || '?') + '×' + (im.Height || '?') + '</b> · ' + esc(im.ProviderName || '') +
+                    (im.Language ? ' · ' + esc(im.Language) : '') +
+                    (im.CommunityRating ? ' · ★ ' + Number(im.CommunityRating).toFixed(1) : '');
+                return '<div class="afx-cand" data-i="' + i + '"><div class="afx-img" style="background-image:url(\'' + esc(im.ThumbnailUrl || im.Url) + '\')"></div>' +
+                    '<div class="afx-meta">' + meta + '</div><button type="button" data-use="' + i + '">Use this</button></div>';
+            }).join('');
+            grid._imgs = imgs;
+        }).catch(function (e) {
+            note('Could not load alternatives: ' + (e && e.status ? 'server said ' + e.status : (e && e.message) || 'unknown error'), 'is-err');
+        });
+    }
+
+    function applied(it, type) {
+        // fetch the new image's size and refresh this row
+        var key = dimKey(it);
+        delete dims[key];
+        return ApiClient.getJSON(ApiClient.getUrl('Items/' + it.id, { userId: ApiClient.getCurrentUserId() })).catch(function () { return null; })
+            .then(function (x) {
+                if (x) {
+                    var tags = x.ImageTags || {}, bd = x.BackdropImageTags || [];
+                    it.hasPrimary = !!tags.Primary; it.priTag = tags.Primary || '';
+                    it.hasBackdrop = bd.length > 0; it.bdTag = bd[0] || '';
+                    it.hasLogo = !!tags.Logo;
+                }
+                return cfg.CheckResolution ? fetchDims(it) : null;
+            }).then(function () {
+                evaluate(it);
+                var row = $('afxList').querySelector('[data-id="' + it.id + '"]');
+                if (row) {
+                    if (it.problems.length) row.outerHTML = rowHtml(it); else row.remove();
+                }
+                $('afxDlgSub').textContent = it.problems.length ? it.problems.map(function (p) { return TAGS[p][0]; }).join(' · ') : 'No problems left.';
+            });
+    }
+
+    function useCandidate(index, button) {
+        var it = dlg.item, type = dlg.type;
+        var im = $('afxGrid')._imgs && $('afxGrid')._imgs[index];
+        if (!it || !im || dlg.busy) return;
+        dlg.busy = true;
+        button.disabled = true;
+        button.textContent = 'Applying…';
+        ApiClient.ajax({
+            type: 'POST',
+            url: ApiClient.getUrl('Items/' + it.id + '/RemoteImages/Download', {
+                Type: type, ImageUrl: im.Url, ProviderName: im.ProviderName
+            })
+        }).then(function () {
+            note('Applied. Jellyfin may take a few seconds to show the new image everywhere.', 'is-ok');
+            button.textContent = 'Applied ✓';
+            return applied(it, type);
+        }).catch(function (e) {
+            button.disabled = false;
+            button.textContent = 'Use this';
+            note('Could not apply that image' + (e && e.status ? ' (server said ' + e.status + ')' : '') + '.', 'is-err');
+        }).then(function () { dlg.busy = false; });
+    }
+
+    function readBase64(file) {
+        return new Promise(function (resolve, reject) {
+            var r = new FileReader();
+            r.onload = function () { resolve(String(r.result).split(',')[1] || ''); };
+            r.onerror = reject;
+            r.readAsDataURL(file);
+        });
+    }
+
+    function uploadFile(file) {
+        var it = dlg.item, type = dlg.type;
+        if (!it || !file || dlg.busy) return;
+        dlg.busy = true;
+        note('Uploading…');
+        readBase64(file).then(function (data) {
+            return ApiClient.ajax({
+                type: 'POST',
+                url: ApiClient.getUrl('Items/' + it.id + '/Images/' + type),
+                data: data,
+                contentType: file.type
+            });
+        }).then(function () {
+            note('Uploaded.', 'is-ok');
+            return applied(it, type);
+        }).catch(function (e) {
+            note('Upload failed' + (e && e.status ? ' (server said ' + e.status + ')' : '') + '.', 'is-err');
+        }).then(function () { dlg.busy = false; $('afxFile').value = ''; });
+    }
+
+    function refreshMeta() {
+        var it = dlg.item;
+        if (!it) return;
+        note('Asking Jellyfin to refresh this title…');
+        ApiClient.ajax({
+            type: 'POST',
+            url: ApiClient.getUrl('Items/' + it.id + '/Refresh', {
+                Recursive: false, ImageRefreshMode: 'FullRefresh', MetadataRefreshMode: 'FullRefresh', ReplaceAllImages: false, ReplaceAllMetadata: false
+            })
+        }).then(function () {
+            note('Refresh started. Give it a moment, then reload the alternatives.', 'is-ok');
+        }).catch(function () { note('Could not start a refresh.', 'is-err'); });
+    }
+
+    /* ---------- wiring ---------- */
+
+    function wire() {
+        $('afxScan').addEventListener('click', function () { scan(false); });
+        $('afxRescan').addEventListener('click', function () { scan(true); });
+        $('afxSave').addEventListener('click', saveSettings);
+        ['afxType', 'afxProblem'].forEach(function (id) { $(id).addEventListener('change', function () { render(true); }); });
+        var timer = 0;
+        $('afxSearch').addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(function () { render(true); }, 200); });
+        $('afxMoreBtn').addEventListener('click', function () { render(false); });
+        $('afxList').addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-act="fix"]');
+            if (!btn) return;
+            var it = itemById(btn.closest('.afx-row').getAttribute('data-id'));
+            if (it) openDialog(it);
+        });
+        $('afxClose').addEventListener('click', closeDialog);
+        $('afxModal').addEventListener('click', function (e) { if (e.target === $('afxModal')) closeDialog(); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && $('afxModal').classList.contains('is-open')) closeDialog(); });
+        $('afxTabs').addEventListener('click', function (e) {
+            var b = e.target.closest('button[data-type]');
+            if (!b) return;
+            dlg.type = b.getAttribute('data-type');
+            buildTabs();
+            loadCandidates();
+        });
+        $('afxAllLang').addEventListener('change', loadCandidates);
+        $('afxGrid').addEventListener('click', function (e) {
+            var b = e.target.closest('button[data-use]');
+            if (b) useCandidate(parseInt(b.getAttribute('data-use'), 10), b);
+        });
+        $('afxFile').addEventListener('change', function () { if (this.files && this.files[0]) uploadFile(this.files[0]); });
+        $('afxRefreshMeta').addEventListener('click', refreshMeta);
+        $('afxOpenItem').addEventListener('click', closeDialog);
+    }
+
+    var wired = false;
+    document.addEventListener('pageshow', function (e) {
+        if (!e.target || e.target.id !== 'artworkFixerPage') return;
+        if (!wired) { wired = true; wire(); }
+        loadSettings();
+    });
+    // some Jellyfin versions do not fire pageshow for plugin pages: wire up once the page is in the document
+    setTimeout(function () { if (!wired && document.getElementById('afxScan')) { wired = true; wire(); loadSettings(); } }, 600);
+})();
+</script>
+
+</div>
+</div>
+</div>
+</body>
+</html>
