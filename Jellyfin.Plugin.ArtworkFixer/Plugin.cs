@@ -1,3 +1,4 @@
+using Jellyfin.Plugin.ArtworkFixer.Configuration;
 using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Model.Plugins;
